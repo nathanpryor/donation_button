@@ -42,8 +42,8 @@ def lambda_handler(event, context):
 
 	response = br.submit()
 	if "Thank You" in response.read():
-    	message = '$5 donated to the ACLU!'
-    	sns.publish(PhoneNumber=phone_number, Message=message)
+		message = '$5 donated to the ACLU!'
+		sns.publish(PhoneNumber=phone_number, Message=message)
 	else:
 		message = 'Error: no donation occurred'
 		sns.publish(PhoneNumber=phone_number, Message=message)
