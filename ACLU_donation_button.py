@@ -1,4 +1,5 @@
 import mechanize
+import botocore
 import boto3
 import os
 
