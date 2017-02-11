@@ -2,16 +2,23 @@ import mechanize
 import boto3
 import os
 
-sns=boto3.client('sns')
+try:
+    sns     = boto3.client('sns')
+    decrypt = boto3.client('kms').decrypt
+except botocore.exceptions.NoRegionError:
+    aws_region = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+    sns     = boto3.client('sns', region_name=aws_region)
+    decrypt = boto3.client('kms', region_name=aws_region).decrypt
+
 # E.g., a US phone number with area code 123: '+11239873456'
 phone_number='PHONE NUMBER WITH COUNTRY AND AREA CODE'
 
 # Load encrypted credit card information (stored in environment variables).
 from base64 import b64decode
-CC_number = boto3.client('kms').decrypt(CiphertextBlob=b64decode(os.environ['CC_number']))['Plaintext']
-CC_expiration_month = boto3.client('kms').decrypt(CiphertextBlob=b64decode(os.environ['CC_expiration_month']))['Plaintext']
-CC_expiration_year = boto3.client('kms').decrypt(CiphertextBlob=b64decode(os.environ['CC_expiration_year']))['Plaintext']
-CC_CVV=boto3.client('kms').decrypt(CiphertextBlob=b64decode(os.environ['CC_CVV']))['Plaintext']
+CC_number           = decrypt(CiphertextBlob=b64decode(os.environ['CC_number']))['Plaintext']
+CC_expiration_month = decrypt(CiphertextBlob=b64decode(os.environ['CC_expiration_month']))['Plaintext']
+CC_expiration_year  = decrypt(CiphertextBlob=b64decode(os.environ['CC_expiration_year']))['Plaintext']
+CC_CVV              = decrypt(CiphertextBlob=b64decode(os.environ['CC_CVV']))['Plaintext']
 
 br = mechanize.Browser(factory=mechanize.RobustFactory()) 
 br.set_debug_http(True)
